@@ -3,6 +3,36 @@
 This repository contains a docker image with [NXLog](https://nxlog.co). The intention is to use this docker to test our application integration before
 committing our code into production.
 
+The image can be found at [Docker Hub](https://cloud.docker.com/repository/docker/gguridi/nxlog-ce)
+
+## Build
+
+To build the image we must pass the version of NXLog we want to install inside. If not, the one declared inside the [Dockerfile](./Dockerfile) will be used.
+
+```bash
+docker build --build-arg BUILD=2.10.2150 -t {image-name} .
+```
+
+## Run
+
+To simplest way to run this image is:
+
+```bash
+docker run -p 514:514/udp -p 515:515 -p 516:516 -it --name nxlog-container gguridi/nxlog-ce
+```
+
+Any parameter passed to the entrypoint will be appended to the nxlog start server binary.
+
+## Testing
+
+For testing purposes, we can generate a test JSON message using netcat.
+
+```bash
+echo -e '{"version": "1.1", "short_message":"Short message", "full_message":"Full message", "level":1}\0' | nc -u -w 5 localhost 514
+```
+
+Note that depending on the netcat installed in your operating system the command can vary slightly.
+
 ## Listeners
 
 This image provides out of the box the following ways to communicate with NXLog.
@@ -48,4 +78,8 @@ It can be configured using the following environment variables.
 - `GRAYLOG_PORT`: port where graylog is listening (default 12201).
 - `GRAYLOG_OUTPUT`: connection type to establish with graylog (default GELF_TCP). Available options can be found [here](https://nxlog.co/docs/nxlog-ce/nxlog-reference-manual.html#xm_gelf)
 
+## Configuration
 
+Generic configuration can be added through environment variables.
+
+- `LOG_LEVEL`: Specifies the log level used by NXLog to process the messages.

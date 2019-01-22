@@ -6,7 +6,7 @@ EXPOSE 514/tcp 514/udp 516/tcp
 
 ARG BUILD="2.10.2150"
 
-ENV OUTPUT="/tmp/output.log"
+ENV OUTPUT="/var/log/nxlog/nxlog.log"
 ENV LOG_LEVEL="INFO"
 ENV GRAYLOG_HOST=""
 ENV GRAYLOG_PORT="12201"
@@ -22,5 +22,6 @@ ADD https://nxlog.co/system/files/products/files/348/nxlog-ce_${BUILD}_ubuntu_bi
 RUN apt install -y /opt/*.deb
 
 ADD . /opt/nxlog/
+WORKDIR /opt/nxlog/
 
-ENTRYPOINT [ "/opt/nxlog/start.sh" ]
+ENTRYPOINT [ "./start.sh" ]
