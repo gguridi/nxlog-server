@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+NXLOG_VERSIONS=( "2.11" "2.10.2150" )
+
+for NXLOG_VERSION in "${NXLOG_VERSIONS[@]}"
+do
+    BUILD="$DOCKER_REPO:$NXLOG_VERSION"
+    docker build --build-arg=BUILD=$NXLOG_VERSION -t $BUILD . && docker push $BUILD
+done

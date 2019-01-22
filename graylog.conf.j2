@@ -1,0 +1,19 @@
+<Extension gelf>
+    Module      xm_gelf
+</Extension>
+
+<Output graylogout>
+    Module      om_tcp
+    Host        {{ GRAYLOG_HOST }}
+    Port        {{ GRAYLOG_PORT }}
+    OutputType  {{ GRAYLOG_OUTPUT }}
+
+    <Schedule>
+        Every	15 min
+    	Exec	reconnect();
+    </Schedule>
+</Output>
+
+<Route s>
+    Path        in_udp, in_tcp, in_ssl, in_uds => transform => buffer => graylogout
+</Route>

@@ -1,0 +1,71 @@
+########################################
+# Global directives                    #
+########################################
+User nxlog
+Group nxlog
+
+LogFile /var/log/nxlog/nxlog.log
+LogLevel {{ LOG_LEVEL }}
+
+########################################
+# Modules                              #
+########################################
+<Input in_udp>
+    Module im_udp
+    Host 0.0.0.0
+    Port 514
+    Exec $raw_event =~ s/"_/"/g;
+</Input>
+
+<Input in_tcp>
+    Module im_tcp
+    Host 0.0.0.0
+    Port 515
+</Input>
+
+<Input in_ssl>
+    Module im_ssl
+    Host 0.0.0.0
+    Port 516
+    #CAFile     /etc/nxlog/MyRootCA.pem
+    CertFile	/opt/nxlog/ssl/certificate.pem
+    CertKeyFile	/opt/nxlog/ssl/key.pem
+    AllowUntrusted True
+</Input>
+
+<Input in_uds>
+    Module im_uds
+    Uds /var/run/nxlog/devlog
+</Input>
+
+<Processor transform>
+  Module        pm_transformer
+  InputFormat   JSON
+  Exec          $project = 'testing';
+  Exec          $environment = 'local';
+  Exec          if not ($raw_event =~ /"@?timestamp"/) rename_field("EventReceivedTime", "timestamp");
+  OutputFormat  JSON
+</Processor>
+
+<Processor buffer>
+    Module      pm_buffer
+    MaxSize     524288
+    Type        Disk
+    WarnLimit   65536
+</Processor>
+
+<Output fileout>
+    Module	om_file
+    File	"{{ OUTPUT }}"
+</Output>
+
+########################################
+# Routes                               #
+########################################
+<Route r>
+    Path        in_udp, in_tcp, in_ssl, in_uds => fileout
+</Route>
+
+{% if GRAYLOG_HOST != "" %}
+{% include 'graylog.conf.j2' %}
+{% endif %}
